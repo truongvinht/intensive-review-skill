@@ -1,5 +1,5 @@
 ---
-name: code-review-branch
+name: intensive-review
 version: 1.0.0
 description: |
   Performs a complete code review of the current Git branch against the base

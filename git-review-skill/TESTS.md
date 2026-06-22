@@ -1,4 +1,4 @@
-# Tests – code-review-branch skill
+# Tests – intensive-review skill
 
 Manual test cases for verifying correct skill behaviour. Each test describes the
 setup, the expected skill output, and how to verify it. Run them on a throwaway
@@ -32,7 +32,7 @@ EOF
 git add greet.py && git commit -m "feat: add greeting function"
 ```
 
-**Trigger:** `/review` (or "review my branch")
+**Trigger:** `/intensive-review` (or "review my branch")
 
 **Expected behaviour:**
 - Step 1 detects base branch (`main` or `master`) without asking
@@ -92,14 +92,14 @@ git checkout -b feature/test-ambiguous
 echo "x=1" > file.py && git add . && git commit -m "test"
 ```
 
-**Trigger:** `/review`
+**Trigger:** `/intensive-review`
 
 **Expected behaviour:**
-- Skill calls `AskUserQuestion` with options `main`, `master`, other
-- After user selects an option, review proceeds normally
+- The agent prompts the user to choose between `main`, `master`, or other
+- After the user selects an option, review proceeds normally
 
 **Pass criteria:**
-- [ ] An interactive question appears before any diff is collected
+- [ ] An interactive prompt appears before any diff is collected
 - [ ] Review completes successfully after the user answers
 
 ---
@@ -146,7 +146,7 @@ EOF
 git add db.py && git commit -m "fix: use parameterised query"
 ```
 
-**Trigger:** `/review` (`.code-review-state` exists from TC-02)
+**Trigger:** `/intensive-review` (`.code-review-state` exists from TC-02)
 
 **Expected behaviour:**
 - Skill detects `.code-review-state` and uses Step 6 (delta re-review)
@@ -212,7 +212,7 @@ done
 git add . && git commit -m "feat: add generated modules"
 ```
 
-**Trigger:** `/review`
+**Trigger:** `/intensive-review`
 
 **Expected behaviour:**
 - Skill informs the user the diff is large and proceeds file-by-file or
@@ -255,7 +255,7 @@ git remote set-url origin https://gitlab.com/example/repo.git
 
 | Phrase | Expected result |
 |--------|-----------------|
-| `/review` | Full review starts |
+| `/intensive-review` | Full review starts |
 | `review my branch` | Full review starts |
 | `PR review` | Full review starts |
 | `code review` | Full review starts |

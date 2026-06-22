@@ -1,6 +1,6 @@
 # git-review-skill
 
-A [Claude Code](https://claude.ai/code) skill that performs a thorough, structured code review of the current Git branch against its base branch and produces a Markdown report ready to paste into a GitHub Pull Request or GitLab Merge Request.
+An AI coding-agent skill that performs a thorough, structured code review of the current Git branch against its base branch and produces a Markdown report ready to paste into a GitHub Pull Request or GitLab Merge Request.
 
 ## Features
 
@@ -23,22 +23,19 @@ A [Claude Code](https://claude.ai/code) skill that performs a thorough, structur
 
 ## Installation
 
-Copy `git-review-skill/SKILL.md` into your Claude Code skills directory:
+Copy `git-review-skill/SKILL.md` into your agent's skills directory.
+Refer to your agent's documentation for the exact path (global vs. project-local).
 
 ```bash
-# Global (available in all projects)
-cp git-review-skill/SKILL.md ~/.claude/skills/review.md
-
-# Or project-local
-cp git-review-skill/SKILL.md .claude/skills/review.md
+cp git-review-skill/SKILL.md <your-agent-skills-dir>/intensive-review.md
 ```
 
 ## Usage
 
-Inside Claude Code, trigger the skill with a natural-language request:
+Trigger the skill with a slash command or a natural-language request:
 
 ```
-/review
+/intensive-review
 ```
 
 or
@@ -49,11 +46,11 @@ PR review
 Code review my changes
 ```
 
-Claude Code matches the description and runs the full workflow automatically.
+The agent matches the description and runs the full workflow automatically.
 
 ### First review
 
-Claude will:
+The agent will:
 1. Detect the base branch and compute the merge-base
 2. Collect the full diff and commit log
 3. Analyse every change across correctness, security, error handling, performance, readability, tests, and conventions
@@ -61,7 +58,7 @@ Claude will:
 
 ### Re-review after fixes
 
-After pushing new commits, run the skill again. Claude detects `.code-review-state`, diffs only the new commits, and produces a resolution table for every previous finding plus a list of newly introduced issues.
+After pushing new commits, run the skill again. The agent detects `.code-review-state`, diffs only the new commits, and produces a resolution table for every previous finding plus a list of newly introduced issues.
 
 You can add `.code-review-state` to `.gitignore`:
 
@@ -108,7 +105,7 @@ if (!secret) throw new Error("JWT_SECRET env var is required");
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) (any recent version)
+- An AI coding agent that supports skills / slash commands (e.g. Claude Code, Cursor, Continue, or similar)
 - A Git repository with at least one branch to compare
 
 ## License
