@@ -102,6 +102,16 @@ Review every change systematically along these dimensions:
 - **Conventions** – Violations of the project's linter/style, inconsistency
   with surrounding code.
 
+**Context gathering.** For every finding worth flagging, capture before moving
+on:
+1. The enclosing function, method, or class name (needed for the report header).
+2. Whether the same anti-pattern repeats elsewhere in the file — if so, note all
+   locations and mention in the finding that it's widespread.
+3. Blast radius: callers, related files, or tests that would be affected by the
+   fix.
+4. The exact current lines you are commenting on — copy them verbatim; you will
+   need them for the **Current code** block in blocking findings.
+
 ### Step 4 – Assign severity
 
 Each comment gets exactly one level:
@@ -226,21 +236,28 @@ the open questions must be resolved first.>
 
 #### 🔴 Blocker — Line 42
 
-> Short, precise problem description. Why is this a problem (impact)?
+> **Problem:** Short, precise description of what is wrong.  
+> **Impact:** What breaks, what risk this creates, or what invariant it violates.
 
+**Current code:**
 ```ts
-// Suggestion
+query(`SELECT * FROM users WHERE id = '${id}'`);
+```
+
+**Suggested change:**
+```ts
 const safe = sanitize(input);
 query(`SELECT * FROM users WHERE id = $1`, [safe]);
 ```
 
-<Optional: one sentence justifying the suggestion.>
+**Why:** Root-cause explanation and what the fix achieves. Name any other call
+sites or files that need the same change.
 
 ---
 
 #### 🟡 Minor — Lines 88–95
 
-> Description …
+> Description. What this costs if left unaddressed.
 
 ```ts
 // Suggestion
@@ -253,7 +270,20 @@ query(`SELECT * FROM users WHERE id = $1`, [safe]);
 
 #### 🟠 Major — Line 17
 
-> …
+> **Problem:** …  
+> **Impact:** …
+
+**Current code:**
+```py
+# what's there now
+```
+
+**Suggested change:**
+```py
+# what it should look like
+```
+
+**Why:** …
 
 ---
 
@@ -264,11 +294,21 @@ decision. Each item states the location and the exact question to resolve.
 
 #### `path/to/file.ts` — Line 120
 
+**Current code:**
+```ts
+// the code that triggered the question
+```
+
 > **Observation:** <what the code does / what's ambiguous>
 > **Why I can't decide:** <missing context, unknown intent, external dependency, …>
 > **Question for the author/reviewer:** <the precise question that unblocks this>
 
 #### `path/to/service.py` — Lines 55–70
+
+**Current code:**
+```py
+# the code that triggered the question
+```
 
 > **Observation:** …
 > **Why I can't decide:** …
@@ -301,12 +341,19 @@ resolution of previous findings, then lists any newly introduced issues.
 
 ### 🔁 #2 — `file.ts`, Lines 88–95
 
-> What was fixed, and what is still missing.
+> What was fixed, and what still remains.
 
+**Current code (after fix attempt):**
 ```ts
-// Remaining suggestion
-…
+// what the code looks like now
 ```
+
+**Suggested change (remaining work):**
+```ts
+// what it should look like
+```
+
+**Why:** What's still missing and what the remaining change achieves.
 
 ---
 
@@ -319,12 +366,20 @@ normal review. Pay special attention to ⚠️ regressions caused by the fixes.>
 
 #### ⚠️ Major — Line 51 (regression)
 
-> The fix for #1 introduced …
+> **Problem:** The fix for #1 introduced …  
+> **Impact:** What this now breaks.
 
+**Current code:**
 ```ts
-// Suggestion
-…
+// what the regressed code looks like now
 ```
+
+**Suggested change:**
+```ts
+// what it should look like
+```
+
+**Why:** Root cause of the regression and what the fix achieves.
 
 ---
 
@@ -356,7 +411,14 @@ Note clearly if blockers or 🟣 items remain.>
    (Only sensible for 1:1 line replacements; use a normal code block for
    larger rewrites.)
 4. **Constructive & concrete.** Not "this is bad", but *what*, *why*, *how to
-   improve*. Always state the impact.
+   improve*.
+   - **🔴 / 🟠 / 🟣** — use the full structure: `> **Problem:** …` and
+     `> **Impact:** …` in the blockquote, then **Current code** (verbatim from
+     the diff), **Suggested change**, and **Why** (root cause + what the fix
+     achieves + any other affected call sites or files).
+   - **🟡 / 🔵 / 🟢** — a concise description with impact in one line; add
+     **Current code** only when the line reference alone leaves the context
+     unclear.
 5. **No hallucinations, escalate instead of guessing.** If something can only
    be judged with more context, or you are not confident in a finding, do
    **not** state it as a 🔴/🟠/🟡 finding and do **not** drop it. Move it to the
