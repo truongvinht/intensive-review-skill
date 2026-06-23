@@ -40,12 +40,12 @@ git add greet.py && git commit -m "feat: add greeting function"
 - Report written to `code-review.md`
 - At least one 🟡 Minor comment on the string concatenation
 - No 🔴 Blockers
-- `.code-review-state` created with `REVIEWED_HEAD`, `BASE`, `REVIEWED_AT`
+- State file created at `$(git rev-parse --absolute-git-dir)/code-review-state` with `REVIEWED_HEAD`, `BASE`, `REVIEWED_AT`
 
 **Pass criteria:**
 - [ ] `code-review.md` exists and contains the `# Code Review` heading
 - [ ] Findings line shows `🔴 0`
-- [ ] `.code-review-state` exists and `REVIEWED_HEAD` matches `git rev-parse HEAD`
+- [ ] `$(git rev-parse --absolute-git-dir)/code-review-state` exists and `REVIEWED_HEAD` matches `git rev-parse HEAD`
 
 ---
 
@@ -119,7 +119,7 @@ git checkout -b feature/empty   # no commits added
 **Expected behaviour:**
 - Skill reports that there are no changes between base and HEAD
 - No `code-review.md` written (or written with a "no changes" notice)
-- No `.code-review-state` created
+- No state file created at `$(git rev-parse --absolute-git-dir)/code-review-state`
 
 **Pass criteria:**
 - [ ] Output contains a message like "no changes" or "nothing to review"
@@ -146,18 +146,18 @@ EOF
 git add db.py && git commit -m "fix: use parameterised query"
 ```
 
-**Trigger:** `/intensive-review` (`.code-review-state` exists from TC-02)
+**Trigger:** `/intensive-review` (state file from TC-02 exists in `.git/`)
 
 **Expected behaviour:**
-- Skill detects `.code-review-state` and uses Step 6 (delta re-review)
+- Skill detects `$(git rev-parse --absolute-git-dir)/code-review-state` and uses Step 6 (delta re-review)
 - Re-review report uses the *Re-review Output Template*
 - Previous SQL injection finding shows `✅ Resolved`
-- New `REVIEWED_HEAD` in `.code-review-state` matches the fix commit
+- New `REVIEWED_HEAD` in the state file matches the fix commit
 
 **Pass criteria:**
 - [ ] Output contains `# Re-review` heading
 - [ ] `✅ Resolved` appears next to the previous SQL injection finding
-- [ ] `.code-review-state` `REVIEWED_HEAD` updated to the new commit
+- [ ] State file `REVIEWED_HEAD` updated to the new commit
 
 ---
 
@@ -269,13 +269,14 @@ git remote set-url origin https://gitlab.com/example/repo.git
 
 ## TC-10 · State file content validation
 
-**Goal:** `.code-review-state` always contains the three required keys.
+**Goal:** State file always contains the three required keys, stored inside `.git/`.
 
 **Setup:** Run any successful review (e.g. TC-01).
 
 **Check:**
 ```bash
-grep -E "^(REVIEWED_HEAD|BASE|REVIEWED_AT)=" .code-review-state | wc -l
+STATE_FILE="$(git rev-parse --absolute-git-dir)/code-review-state"
+grep -E "^(REVIEWED_HEAD|BASE|REVIEWED_AT)=" "$STATE_FILE" | wc -l
 # expected: 3
 ```
 

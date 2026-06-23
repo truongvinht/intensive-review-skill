@@ -139,33 +139,43 @@ Write the report to `code-review.md` (or output inline, depending on user
 preference). **Follow the format strictly** so copy & paste into PR/MR works.
 
 **Record the reviewed state.** After writing the report, persist the exact
-commit that was reviewed so a later re-review can compute the delta. Write it to
-`.code-review-state` in the repo root:
+commit that was reviewed so a later re-review can compute the delta. Store it
+inside `.git/` so it is never tracked, never shows up in `git status`, and
+never needs to be `.gitignore`d:
 
 ```bash
-echo "REVIEWED_HEAD=$(git rev-parse HEAD)"   >  .code-review-state
-echo "BASE=$BASE"                             >> .code-review-state
-echo "REVIEWED_AT=$(date -u +%FT%TZ)"         >> .code-review-state
+STATE_FILE="$(git rev-parse --absolute-git-dir)/code-review-state"
+# One-time migration: move state from old root location if present
+if [[ ! -f "$STATE_FILE" && -f ".code-review-state" ]]; then
+  mv .code-review-state "$STATE_FILE"
+fi
+echo "REVIEWED_HEAD=$(git rev-parse HEAD)" >  "$STATE_FILE"
+echo "BASE=$BASE"                          >> "$STATE_FILE"
+echo "REVIEWED_AT=$(date -u +%FT%TZ)"      >> "$STATE_FILE"
 ```
 
-Mention to the user that this file records the reviewed commit and can be
-`.gitignore`d. If it already exists, this is a re-review — go to Step 6 first.
+If `$STATE_FILE` already exists, this is a re-review — go to Step 6 first.
 
 ### Step 6 – Re-review / delta after a pull or fixes
 
-When the author has pushed fixes, you've pulled new commits, or `.code-review-
-state` already exists, do **not** re-review everything from scratch. Review only
-what changed since the last review.
+When the author has pushed fixes, you've pulled new commits, or `$STATE_FILE`
+already exists, do **not** re-review everything from scratch. Review only what
+changed since the last review.
 
 1. **Detect the prior reviewed commit:**
 
    ```bash
    git fetch origin                              # get the latest remote state first
-   PREV=$(grep REVIEWED_HEAD .code-review-state | cut -d= -f2)
+   STATE_FILE="$(git rev-parse --absolute-git-dir)/code-review-state"
+   # One-time migration: move state from old root location if present
+   if [[ ! -f "$STATE_FILE" && -f ".code-review-state" ]]; then
+     mv .code-review-state "$STATE_FILE"
+   fi
+   PREV=$(grep REVIEWED_HEAD "$STATE_FILE" | cut -d= -f2)
    NEW=$(git rev-parse HEAD)
    ```
 
-   If `.code-review-state` is missing, ask the user for the previously reviewed
+   If `$STATE_FILE` is missing, ask the user for the previously reviewed
    commit/SHA or tag (via `AskUserQuestion`), or fall back to a full review.
 
 2. **Determine what to look at:**
@@ -204,7 +214,7 @@ what changed since the last review.
    assuming it's resolved.
 
 4. **Produce a re-review report** using the *Re-review Output Template* below,
-   then update `.code-review-state` with the new HEAD (as in Step 5).
+   then update `$STATE_FILE` with the new HEAD (as in Step 5).
 
 ---
 
@@ -444,7 +454,7 @@ Note clearly if blockers or 🟣 items remain.>
   to focus on in a huge diff, or an unknown that would change the entire
   assessment. Per-line ambiguities go in the report, not into a back-and-forth.
 - **Full vs. delta review.** First run on a branch → full review (Steps 1–5).
-  Any later run where `.code-review-state` exists or the user says they pushed
-  fixes / pulled new commits → delta re-review (Step 6). If the base branch
+  Any later run where `$STATE_FILE` exists or the user says they pushed fixes /
+  pulled new commits → delta re-review (Step 6). If the base branch
   itself has moved a lot since the last review, recompute the merge-base and say
   so; a shifted base can change line numbers and context.
