@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL_NAME="git-review-skill"
+SKILL_NAME="intensive-review"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="$SCRIPT_DIR/$SKILL_NAME"
 DEST_DIR="${HOME}/.claude/skills/$SKILL_NAME"

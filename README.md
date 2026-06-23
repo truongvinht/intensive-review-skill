@@ -23,11 +23,16 @@ An AI coding-agent skill that performs a thorough, structured code review of the
 
 ## Installation
 
-Copy `git-review-skill/SKILL.md` into your agent's skills directory.
-Refer to your agent's documentation for the exact path (global vs. project-local).
+Run the included install script to copy the skill into `~/.claude/skills/`:
 
 ```bash
-cp git-review-skill/SKILL.md <your-agent-skills-dir>/intensive-review.md
+./install.sh
+```
+
+Or copy manually into your agent's skills directory:
+
+```bash
+cp -r intensive-review/ <your-agent-skills-dir>/intensive-review/
 ```
 
 ## Usage
