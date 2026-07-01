@@ -108,10 +108,43 @@ if (!secret) throw new Error("JWT_SECRET env var is required");
 ...
 ```
 
+## Publishing a review to GitLab (`gl-review`)
+
+A second skill, `gl-review`, takes an existing `code-review.md` (produced by
+`intensive-review`) and publishes it directly to the matching GitLab Merge
+Request via the [`@zereight/mcp-gitlab`](https://github.com/zereight/gitlab-mcp)
+MCP server:
+
+- Posts **one inline diff comment per finding** — including 🟣 Needs Human
+  Review items — on the exact file/line it refers to
+- Posts **one top-level summary note** with the overall recommendation and
+  findings count
+- Auto-detects the project and Merge Request from `git remote` + the current
+  branch; asks when it's ambiguous
+- Falls back to a general comment (quoting the original file:line) if a
+  finding's line is no longer part of the current diff
+- Always shows a preview and asks for confirmation before posting anything
+- Tracks what was already published to avoid duplicate comments on re-runs
+
+```
+/gl-review
+```
+
+or
+
+```
+Publish this review to the MR
+Post the review comments on the merge request
+```
+
+Requires the GitLab MCP server to be configured with access to your GitLab
+instance (API URL + a personal access token with API scope).
+
 ## Requirements
 
 - An AI coding agent that supports skills / slash commands (e.g. Claude Code, Cursor, Continue, or similar)
 - A Git repository with at least one branch to compare
+- For `gl-review`: a configured GitLab MCP server (`@zereight/mcp-gitlab`) and a GitLab project/Merge Request
 
 ## License
 
